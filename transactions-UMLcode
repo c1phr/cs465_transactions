@@ -1,0 +1,29 @@
+class Transaction
+{
+  self __init__;
+  integer activeTrans;
+  integer subtract;
+  integer add;
+}
+
+class Cubbyhole
+{
+  self __init__;
+  integer initialValue;
+  boolean lock;
+}
+
+class Agent
+{
+  self __init__;
+  integer terminateNum;
+  integer terminateTime;
+  integer numberCubbys;
+}
+
+class BarChart
+{
+  self __init__;
+  1 -- * Cubbyhole;
+}
+
