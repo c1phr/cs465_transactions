@@ -1,1 +1,4 @@
-__author__ = 'RynBirthdayBoy'
+
+class Barchart(object):
+
+    def __init__(self):

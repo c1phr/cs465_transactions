@@ -1,1 +1,5 @@
-__author__ = 'RynBirthdayBoy'
+
+
+
+class Transaction(object):
+    def __init__(self):
