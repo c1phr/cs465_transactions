@@ -10,7 +10,8 @@ class Cubby:
         return self.__value
 
     """
-    Takes in a delta value to apply to the cubby's value, rather than setting a direct value
+    Takes in a delta value to apply to the cubby's value, rather than
+    setting a direct value
     """
     def change_value(self, delta):
         self.__value += delta
