@@ -1,4 +1,8 @@
 from multiprocessing import Pool, Process
+from random import randint
+from src.agent import Agent
+from src.cubby import Cubby
+
 
 class Manager(object):
     """
@@ -20,15 +24,15 @@ class Manager(object):
 
         self.cubbyholes = []
         for cubby in range(num_cubbies):
-            cubbyholes.append(Cubby(bounded_random(0, max_cubby_value)))
+            self.cubbyholes.append(Cubby(randint(0, max_cubby_value)))
 
         self.agents = []
         for agent in range(num_agents):
-            agents.append(Agent(locking_enabled))
+            self.agents.append(Agent(locking_enabled))
         
         self.pool = Pool(processes=num_agents)
 
-    def run():
+    def run(self):
         if self.terminate_on=="time":
             time_init = process_time()
 
