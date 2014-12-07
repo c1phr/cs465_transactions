@@ -1,4 +1,5 @@
 from time import sleep
+from random import randint
 
 class Agent(object):
     """ 
@@ -6,26 +7,36 @@ class Agent(object):
     which cubbyholes' values to change, and by how much, and manages locking
     those cubbyholes and changing the values.
     """
-    def __init__(self, locking_enabled):
+    def __init__(self, num_cubbies, locking_enabled):
         self.locking_enabled=locking_enabled
 
-    def modify_cubbyhole(a, b, delta_upper_bound=50):
+    def modify_cubbyhole(cubby_a, cubby_b, delta_upper_bound=50
+            agents_array):
         # The calling process should indicate which cubbyholes to modify,
         # but the Agent will automatically select a value by which to change
         # the cubbyholes' values.
-        delta_value_a = bounded_random(0, delta_upper_bound)
-        delta_value_b = delta_value_a * -1
+        delta_value_a = random.randint(0, delta_upper_bound)
+        delta_value_b = delta_value_a * (-1)
 
         if locking_enabled:
-            while a.lock_status() or b.lock_status() == True:
+            while cubby_a.lock_status() or cubby_b.lock_status() == True:
                 sleep(0.001)
-            a.lock()
-            b.lock()
-            a.change_value(delta_value_a)
-            b.change_value(delta_value_b)
-            a.release_lock()
-            b.release_lock()
+            cubby_a.lock()
+            cubby_b.lock()
+            cubby_a.change_value(delta_value_a)
+            cubby_b.change_value(delta_value_b)
+            cubby_a.release_lock()
+            cubby_b.release_lock()
 
         else:
-            a.change_value(delta_value_a)
-            b.change_value(delta_value_b)
+            cubby_a.change_value(delta_value_a)
+            cubby_b.change_value(delta_value_b)
+
+    def run(agents_array):
+        random.seed()
+        while True:
+            random_cubby_a = agents_array[random.randint(0,
+                self.num_cubbies)]
+            random_cubby_b = agents_array[random.randint(0,
+                self.num_cubbies)]
+            modify_cubbyhole(random_cubby_a, random_cubby_b)
