@@ -32,11 +32,10 @@ class Agent(object):
             cubby_a.change_value(delta_value_a)
             cubby_b.change_value(delta_value_b)
 
-    def run(agents_array):
-        random.seed()
+    def run(cubby_array):
         while True:
-            random_cubby_a = agents_array[random.randint(0,
+            random_cubby_a = cubby_array[random.randint(0,
                 self.num_cubbies)]
-            random_cubby_b = agents_array[random.randint(0,
+            random_cubby_b = cubby_array[random.randint(0,
                 self.num_cubbies)]
             modify_cubbyhole(random_cubby_a, random_cubby_b)
