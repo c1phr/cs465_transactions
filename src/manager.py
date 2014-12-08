@@ -28,7 +28,7 @@ class Manager(object):
 
         self.agents = []
         for agent in range(self.num_agents):
-            self.agents.append(Agent(locking_enabled=True))
+            self.agents.append(Agent(self.locking_enabled))
 
         self.agent_processes = []
         
