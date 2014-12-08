@@ -33,19 +33,32 @@ class Manager(object):
         self.agent_processes = []
         
     def run(self):
+        agent_processes = []
         if self.terminate_on=="time":
             start_time = time.clock() # Get current time
             end_time = start_time + self.termination_point
             while time.clock() < end_time:
                 for this_agent in self.agents:
                     this_agent_process = multiprocessing.Process(target=this_agent.run, args=(self.cubbyholes, ))
+                    agent_processes.append(this_agent_process)
                     this_agent_process.start()
+
+                # Make sure we wait for processes to finish before running again
+                for elem in agent_processes:
+                    proc = agent_processes.pop()
+                    proc.join()
 
         else:
             run_counter = 0
             while run_counter < self.termination_point:
                 for this_agent in self.agents:
                     this_agent_process = multiprocessing.Process(target=this_agent.run, args=(self.cubbyholes, ))
+                    agent_processes.append(this_agent_process)
                     this_agent_process.start()
                     run_counter += 1
+
+                # Make sure we wait for processes to finish before running again
+                for elem in agent_processes:
+                    proc = agent_processes.pop()
+                    proc.join()
 
