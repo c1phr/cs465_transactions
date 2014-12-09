@@ -2,8 +2,6 @@ import multiprocessing
 from multiprocessing import Manager as man
 from random import randint
 import time
-from src.agent import Agent
-from src.cubby import Cubby
 
 
 class Manager(object):
@@ -20,21 +18,15 @@ class Manager(object):
 
         self.locking_enabled = locking_enabled
         self.terminate_on = terminate_on
-        self.num_agents = multiprocessing.cpu_count()
+        self.num_procs = multiprocessing.cpu_count()
         self.num_cubbies = num_cubbies
         self.manager = man()
-        #self.termination_point = multiprocessing.Value(int, termination_point)
         self.termination_point = int(termination_point)
+        self.lock = multiprocessing.Lock()
 
         self.cubbyholes = self.manager.list()
         for cubby in range(num_cubbies):
-            self.cubbyholes.append(Cubby(int(initial_cubby_value)))
-
-        self.agents = []
-        for agent in range(self.num_agents):
-            self.agents.append(Agent(num_cubbies, self.locking_enabled))
-
-        self.agent_processes = []
+            self.cubbyholes.append(int(initial_cubby_value))
 
     print("before run manager")
     def run(self):
@@ -45,8 +37,8 @@ class Manager(object):
             start_time = time.clock() # Get current time
             end_time = int(start_time) + int(self.termination_point)
             while time.clock() < end_time:
-                for this_agent in self.agents:
-                    this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole, args=(self.cubbyholes, ))
+                for proc in range(self.num_procs):
+                    this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole)
                     agent_processes.append(this_agent_process)
                     this_agent_process.start()
 
@@ -59,8 +51,8 @@ class Manager(object):
             print("manager else")
             run_counter = 0
             while run_counter < self.termination_point:
-                for this_agent in self.agents:
-                    this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole, args=(self.cubbyholes, ))
+                for proc in range(self.num_procs):
+                    this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole)
                     agent_processes.append(this_agent_process)
                     this_agent_process.start()
                     run_counter += 1
@@ -70,38 +62,29 @@ class Manager(object):
                     proc = agent_processes.pop()
                     proc.join()
 
-                for cub in self.cubbyholes:
-                    print("Cub: " + str(cub.get_value()))
-
-    # I tried putting this in here, to see if it would fix the problem. Not sure that we need it here
-    def modify_cubbyhole(self, cubbies, delta_upper_bound=50):
+    def modify_cubbyhole(self, delta_upper_bound=50):
         # The calling process should indicate which cubbyholes to modify,
         # but the Agent will automatically select a value by which to change
         # the cubbyholes' values.
-        cubby_a = randint(0, self.num_cubbies-1) #cubby_array[randint(0, self.num_cubbies-1)]
-        cubby_b = randint(0, self.num_cubbies-1) #cubby_array[randint(0, self.num_cubbies-1)]
+        cubby_a = randint(0, len(self.cubbyholes)-1) #cubby_array[randint(0, self.num_self.cubbyholes-1)]
+        cubby_b = randint(0, len(self.cubbyholes)-1) #cubby_array[randint(0, self.num_self.cubbyholes-1)]
         delta_value_a = randint(0, delta_upper_bound)
         delta_value_b = delta_value_a * (-1)
         print(multiprocessing.current_process())
 
         if self.locking_enabled:
-            # Hold up here until both locks are free
-            while cubbies[cubby_a].get_lock() and cubbies[cubby_b].get_lock() == True:
-                print("Waiting")
-                time.sleep(0.001)
 
             # Critical section
-            cubbies[cubby_a].set_lock()
-            cubbies[cubby_b].set_lock()
-            print("Cubby Pre: " + str(cubbies[cubby_b].get_value()))
-            cubbies[cubby_a].change_value(delta_value_a)
-            cubbies[cubby_b].change_value(delta_value_b)
+            print("Cubby Pre: " + str(self.cubbyholes[cubby_b]))
+            self.lock.acquire()
+            self.cubbyholes[cubby_a] += delta_value_a
+            self.cubbyholes[cubby_b] += delta_value_b
+            self.lock.release()
+
             print("Delta: " + str(delta_value_a))
-            print("Cubby Post: " + str(cubbies[cubby_b].get_value()))
-            cubbies[cubby_a].release_lock()
-            cubbies[cubby_b].release_lock()
+            print("Cubby Post: " + str(self.cubbyholes[cubby_b]))
 
         else:
             # Change values without locking
-            cubbies[cubby_a].change_value(delta_value_a)
-            cubbies[cubby_b].change_value(delta_value_b)
+            self.cubbyholes[cubby_a] += delta_value_a
+            self.cubbyholes[cubby_b] += delta_value_b
