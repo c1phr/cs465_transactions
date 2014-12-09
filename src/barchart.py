@@ -16,24 +16,22 @@ class barchart(object):
             label_list = []
             for i in range(0, N):
                 label_list.append("C" + str(i+1))
-            index = np.arange(N)    # the x locations for the groups
-            width = .8       # the width of the bars: can also be len(x) sequence
+            index = np.arange(N)
 
-            p1 = plt.bar(index, cubby_val, width, color='b', edgecolor="r", align="center")
+            p1 = plt.bar(index, cubby_val, .8, color='b', edgecolor="r", align="center")
 
             plt.ylabel('Value')
             plt.title('Value of Cubbies')
             plt.xticks(index, label_list)
             plt.yticks(np.arange(0,22,1))
 
-            def autolabel(p1):
-                # attach some text labels
+            def label_system(p1):
                 for rect in p1:
                     height = rect.get_height()
                     plt.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
                             ha='center', va='bottom')
 
-            autolabel(p1)
+            label_system(p1)
 
             plt.show()
 
