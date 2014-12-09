@@ -22,13 +22,17 @@ class Agent(object):
         if self.locking_enabled:
             # Hold up here until both locks are free
             while cubby_a.get_lock() and cubby_b.get_lock() == True:
+                print("Waiting")
                 sleep(0.001)
 
             # Critical section
             cubby_a.set_lock()
             cubby_b.set_lock()
+            print("Cubby Pre: " + str(cubby_a.get_value()))
             cubby_a.change_value(delta_value_a)
             cubby_b.change_value(delta_value_b)
+            print("Delta: " + str(delta_value_a))
+            print("Cubby Post: " + str(cubby_a.get_value()))
             cubby_a.release_lock()
             cubby_b.release_lock()
 
