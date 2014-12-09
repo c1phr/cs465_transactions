@@ -4,12 +4,12 @@ def main():
     print("Welcome to the Transactions program\n")
     choice = input("Would you like to timeout based on number of transactions or a time limit? (n / t)\n")
     if choice is "n":
-        num_time = input("How many transactions do you want to run?\n")
+        num_time = int(input("How many transactions do you want to run?\n"))
         string = "transactions"
     else:
-        num_time = input("How many seconds should the program run?\n")
+        num_time = int(input("How many seconds should the program run?\n"))
         string = "time"
-    init_val = input("What should the initial cubby value be?\n")
+    init_val = int(input("What should the initial cubby value be?\n"))
     num_cubby = int(input("How many cubbyholes would you like to create?\n"))
     lock_enabled = input("Enable locking? (y/n)\n")
     if lock_enabled == 'n':
