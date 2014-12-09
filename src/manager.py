@@ -17,9 +17,9 @@ class Manager(object):
         # terminate_on) the number of transactions or seconds after which to
         # terminate. 
 
-        self.locking_enabled=locking_enabled
-        self.terminate_on=terminate_on
-        self.termination_point=termination_point
+        self.locking_enabled = locking_enabled
+        self.terminate_on = terminate_on
+        self.termination_point = termination_point
         self.num_agents = multiprocessing.cpu_count()
 
         self.cubbyholes = []
@@ -28,13 +28,16 @@ class Manager(object):
 
         self.agents = []
         for agent in range(self.num_agents):
-            self.agents.append(Agent(self.locking_enabled))
+            self.agents.append(Agent(num_cubbies, self.locking_enabled))
 
         self.agent_processes = []
-        
+
+    print("before run manager")
     def run(self):
         agent_processes = []
-        if self.terminate_on=="time":
+
+        if self.terminate_on == "time":
+            print("manager if")
             start_time = time.clock() # Get current time
             end_time = start_time + self.termination_point
             while time.clock() < end_time:
@@ -49,6 +52,7 @@ class Manager(object):
                     proc.join()
 
         else:
+            print("manager else")
             run_counter = 0
             while run_counter < self.termination_point:
                 for this_agent in self.agents:
