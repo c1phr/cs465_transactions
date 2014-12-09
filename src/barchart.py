@@ -23,7 +23,7 @@ class barchart(object):
             plt.ylabel('Value')
             plt.title('Value of Cubbies')
             plt.xticks(index, label_list)
-            plt.yticks(np.arange(0,22,1))
+            plt.yticks(np.arange(0,101,10))
 
             def label_system(p1):
                 for rect in p1:
