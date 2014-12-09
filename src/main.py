@@ -1,4 +1,4 @@
-from manager import Manager
+from src.manager import Manager
 
 def main():
     print("Welcome to the Transactions program\n")
@@ -18,7 +18,7 @@ def main():
     else:
         lock_enabled = True
         lock_str = "Yes"
-    plot_val = input("Would you like a barchart? (y/n)")
+    plot_val = input("Would you like a barchart? (y/n)\n")
     if plot_val is "n":
         plot_val = False
     else:
