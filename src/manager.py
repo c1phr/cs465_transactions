@@ -1,7 +1,9 @@
 import multiprocessing
 from multiprocessing import Manager as man
 from random import randint
+from src.barchart import barchart
 import time
+import threading
 
 
 class Manager(object):
@@ -27,11 +29,11 @@ class Manager(object):
         self.cubbyholes = self.manager.list()
         for cubby in range(num_cubbies):
             self.cubbyholes.append(int(initial_cubby_value))
+        self.chart = barchart(self.cubbyholes)
 
     print("before run manager")
     def run(self):
         agent_processes = []
-
         if self.terminate_on == "time":
             print("manager if")
             start_time = time.clock() # Get current time
@@ -41,6 +43,9 @@ class Manager(object):
                     this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole)
                     agent_processes.append(this_agent_process)
                     this_agent_process.start()
+                    time.sleep(1)
+                    self.chart.change_value(self.cubbyholes)
+                    self.chart.make_barchart()
 
                 # Make sure we wait for processes to finish before running again
                 for elem in agent_processes:
@@ -56,13 +61,16 @@ class Manager(object):
                     agent_processes.append(this_agent_process)
                     this_agent_process.start()
                     run_counter += 1
+                    time.sleep(1)
+                    self.chart.change_value(self.cubbyholes)
+                    self.chart.make_barchart()
 
                 # Make sure we wait for processes to finish before running again
                 for elem in agent_processes:
                     proc = agent_processes.pop()
                     proc.join()
 
-    def modify_cubbyhole(self, delta_upper_bound=50):
+    def modify_cubbyhole(self, delta_upper_bound=5):
         # The calling process should indicate which cubbyholes to modify,
         # but the Agent will automatically select a value by which to change
         # the cubbyholes' values.
