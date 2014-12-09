@@ -18,9 +18,14 @@ def main():
     else:
         lock_enabled = True
         lock_str = "Yes"
+    plot_val = input("Would you like a barchart? (y/n)")
+    if plot_val is "n":
+        plot_val = False
+    else:
+        plot_val = True
     print("Cubbyholes: {0}, Initial Value: {1}, Terminate: {2} {3}, Locking: {4} \n".format(num_cubby, init_val, num_time, string, lock_str))
 
-    start_agent = Manager(num_cubby, init_val, lock_enabled, string, num_time)
+    start_agent = Manager(num_cubby, init_val, plot_val, lock_enabled, string, num_time)
     start_agent.run()
 
 main()
