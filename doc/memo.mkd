@@ -7,40 +7,32 @@
 ####FROM: Salvatore, Ryan, Chris, Andrew
 ####SUBJECT: Transactional System Design
 
-Our transactional system design uses a shared array of Cubbys, each of which
-contains an integer value, and a group of semiautonomous Agents (the number
-of which is determined by the number of cores on the host machines) which
-operate on those values. Concurrency is managed with locking, which can be
-turned on or off. Termination can be set to occur after the main thread has
-run for a given number of seconds, or after a given number of modifications
-to the Cubby values has taken place.
+As it turns out, Python is quite picky about allowing
+multiprocessing.Process objects to interact with global memory.
 
-Each system has a single instance of the Manager object, which is
-essentially a container for the associated Cubby and Agent objects. The
-Manager's constructor takes arguments for:
+Specifically, they can't.
 
- - The number of cubbies to open
- - The maximum value with which a cubby may be initialized
- - A boolean indicating whether or not to enable locking
- - A string indicating whether to terminate after some time, or after a
-   certain number of transactions
- - An integer specifying the termination limit (in seconds or number of
-   transactions)
+Therefore:
 
-The Manager constructs an array of Cubbys with limited random values and an
-array of Agents with length equal to the number of CPU cores on the host's
-machine. Then it creates a multiprocessing.Process object for each Agent,
-and initializes each of the Processes.
+Our transactional system uses a simple model, whereby the integers to be
+modified are stored in a multiprocessing list contained in a Manager object,
+and accessed via indices. Multiple multiprocessing.Process objects can
+interact with this list, and if locking is enabled, concurrency is managed
+via a global lock which indicates whether any one Process object is working
+on the values of the list at a time. 
 
-An Agent takes, in its constructor, a boolean indicating whether locking is
-enabled. Its self.run() takes as arguments a reference to the Manager's
-array of cubbyholes. It begins to select Cubbys from the array at random,
-and proceeds to lock them and apply a value change to each. When the Agent
-modifies the values of two Cubbys, it selects a delta value for the first
-Cubby and uses the negative of that value to modify the second. In this way,
-the sum of the Cubbys' values always remains constant.
+Multiple instances of the Manager class share a multiprocessing.List object,
+which allows them to act on the same data as the other instances. (In other
+circumstances, Python will deep-copy the data contained in an object for
+each mutliprocessing object, making a system such as this one impossible.) 
+When a Manager wants to modify the data in the list, it requests the global
+write lock, waits until it is available if necessary, then randomly selects
+two values to modify and a delta-value by which to modify them. The
+delta-value for the second item is equal to the delta-value for the first
+item multiplied by negative 1, so that the sum of all the values in the list
+always remains the same. 
 
-Cubbys simply hold an integer, and an associated Boolean indicating whether
-that value is currently locked by some Agent. They have a get_lock() method
-which returns the lock's status, and set_lock() and release_lock() methods
-to match. 
+The program terminates either after some specified number of seconds has
+elapsed, or after a specified number of transactions (value modifications)
+have been processed. These parameters are specified in the constructor for
+the Manager object and passed in by main.py, which controls building them. 
