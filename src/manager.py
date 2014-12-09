@@ -39,7 +39,7 @@ class Manager(object):
         if self.terminate_on == "time":
             print("manager if")
             start_time = time.clock() # Get current time
-            end_time = start_time + self.termination_point
+            end_time = int(start_time) + int(self.termination_point)
             while time.clock() < end_time:
                 for this_agent in self.agents:
                     this_agent_process = multiprocessing.Process(target=this_agent.run, args=(self.cubbyholes, ))

@@ -9,7 +9,7 @@ class Agent(object):
     those cubbyholes and changing the values.
     """
     def __init__(self, num_cubbies, locking_enabled):
-        self.locking_enabled=locking_enabled
+        self.locking_enabled = locking_enabled
         self.num_cubbies = num_cubbies
 
     def modify_cubbyhole(self, cubby_a, cubby_b, delta_upper_bound=50):
