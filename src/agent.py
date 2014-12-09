@@ -21,12 +21,12 @@ class Agent(object):
 
         if self.locking_enabled:
             # Hold up here until both locks are free
-            while cubby_a.lock_status() and cubby_b.lock_status() == True:
+            while cubby_a.get_lock() and cubby_b.get_lock() == True:
                 sleep(0.001)
 
             # Critical section
-            cubby_a.lock()
-            cubby_b.lock()
+            cubby_a.set_lock()
+            cubby_b.set_lock()
             cubby_a.change_value(delta_value_a)
             cubby_b.change_value(delta_value_b)
             cubby_a.release_lock()
@@ -38,6 +38,6 @@ class Agent(object):
             cubby_b.change_value(delta_value_b)
 
     def run(self, cubby_array):
-        random_cubby_a = cubby_array[randint(0, self.num_cubbies)]
-        random_cubby_b = cubby_array[randint(0, self.num_cubbies)]
+        random_cubby_a = cubby_array[randint(0, self.num_cubbies-1)]
+        random_cubby_b = cubby_array[randint(0, self.num_cubbies-1)]
         self.modify_cubbyhole(random_cubby_a, random_cubby_b)
