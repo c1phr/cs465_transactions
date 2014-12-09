@@ -38,7 +38,6 @@ class Agent(object):
             cubby_b.change_value(delta_value_b)
 
     def run(self, cubby_array):
-        while True:
-            random_cubby_a = cubby_array[randint(0, self.num_cubbies)]
-            random_cubby_b = cubby_array[randint(0, self.num_cubbies)]
-            self.modify_cubbyhole(random_cubby_a, random_cubby_b)
+        random_cubby_a = cubby_array[randint(0, self.num_cubbies)]
+        random_cubby_b = cubby_array[randint(0, self.num_cubbies)]
+        self.modify_cubbyhole(random_cubby_a, random_cubby_b)
