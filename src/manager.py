@@ -25,27 +25,26 @@ class Manager(object):
         self.manager = man()
         self.termination_point = int(termination_point)
         self.lock = multiprocessing.Lock()
+        self.plot = False
 
         self.cubbyholes = self.manager.list()
         for cubby in range(num_cubbies):
             self.cubbyholes.append(int(initial_cubby_value))
         self.chart = barchart(self.cubbyholes)
 
-    print("before run manager")
     def run(self):
         agent_processes = []
         if self.terminate_on == "time":
-            print("manager if")
             start_time = time.clock() # Get current time
-            end_time = int(start_time) + int(self.termination_point)
+            end_time = float(start_time) + float(self.termination_point)
             while time.clock() < end_time:
                 for proc in range(self.num_procs):
                     this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole)
                     agent_processes.append(this_agent_process)
                     this_agent_process.start()
-                    time.sleep(1)
-                    self.chart.change_value(self.cubbyholes)
-                    self.chart.make_barchart()
+                    if self.plot:
+                        self.chart.change_value(self.cubbyholes)
+                        self.chart.make_barchart()
 
                 # Make sure we wait for processes to finish before running again
                 for elem in agent_processes:
@@ -53,46 +52,54 @@ class Manager(object):
                     proc.join()
 
         else:
-            print("manager else")
-            run_counter = 0
-            while run_counter < self.termination_point:
+            self.run_counter = 0
+            while self.run_counter < self.termination_point:
                 for proc in range(self.num_procs):
                     this_agent_process = multiprocessing.Process(target=self.modify_cubbyhole)
                     agent_processes.append(this_agent_process)
                     this_agent_process.start()
-                    run_counter += 1
-                    time.sleep(1)
-                    self.chart.change_value(self.cubbyholes)
-                    self.chart.make_barchart()
+                    self.run_counter += 1
+                    if self.plot:
+                        self.chart.change_value(self.cubbyholes)
+                        self.chart.make_barchart()
 
                 # Make sure we wait for processes to finish before running again
                 for elem in agent_processes:
                     proc = agent_processes.pop()
                     proc.join()
 
-    def modify_cubbyhole(self, delta_upper_bound=5):
+
+    def modify_cubbyhole(self, delta_upper_bound=10):
         # The calling process should indicate which cubbyholes to modify,
         # but the Agent will automatically select a value by which to change
         # the cubbyholes' values.
+        if self.terminate_on != "time" and self.termination_point <= self.run_counter:
+            # Since systems with more CPUs than the user selected executions will keep spawning processes,
+            # double check to make sure that we don't do too many runs, break out if so
+            return None
         cubby_a = randint(0, len(self.cubbyholes)-1) #cubby_array[randint(0, self.num_self.cubbyholes-1)]
         cubby_b = randint(0, len(self.cubbyholes)-1) #cubby_array[randint(0, self.num_self.cubbyholes-1)]
         delta_value_a = randint(0, delta_upper_bound)
         delta_value_b = delta_value_a * (-1)
-        print(multiprocessing.current_process())
 
         if self.locking_enabled:
-
             # Critical section
-            print("Cubby Pre: " + str(self.cubbyholes[cubby_b]))
             self.lock.acquire()
             self.cubbyholes[cubby_a] += delta_value_a
             self.cubbyholes[cubby_b] += delta_value_b
             self.lock.release()
 
-            print("Delta: " + str(delta_value_a))
-            print("Cubby Post: " + str(self.cubbyholes[cubby_b]))
-
         else:
             # Change values without locking
             self.cubbyholes[cubby_a] += delta_value_a
             self.cubbyholes[cubby_b] += delta_value_b
+
+        # Lock prints so the output doesn't get jumbled between processes
+        self.lock.acquire()
+        output = "["
+        for cubby in self.cubbyholes:
+            output += str(cubby) + ","
+        output = output[:-1]
+        output += "] -- Cubby sum: " + str(sum(self.cubbyholes))
+        print(output)
+        self.lock.release()
